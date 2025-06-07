@@ -4,7 +4,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "npm run dev",
+            "name": "Run Dev Server",
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run",
@@ -13,10 +13,17 @@
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "serverReadyAction": {
-                "pattern": "Local: (http://localhost:[0-9]+)",
-                "uriFormat": "%s",
-                "action": "openExternally"
+                "pattern": "Serving files from:",
+                "action": "startDebugging",
+                "name": "Launch Chrome"
             }
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}"
         }
-    ]
+    ],
 }
