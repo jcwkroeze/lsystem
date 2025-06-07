@@ -337,7 +337,7 @@ class LSystemDemo {
         this.gl.viewport(0, 0, newWidth, newHeight);
 
         const projectionMatrix = mat4.create();
-        mat4.perspective(projectionMatrix, 45 * Math.PI / 180, aspectRatio, 0.1, 100.0);
+        mat4.perspective(projectionMatrix, 45 * Math.PI / 180, aspectRatio, 0.1, 10000.0);
 
         const loc = this.findUniform("projection");
         if (loc) this.gl.uniformMatrix4fv(loc, false, projectionMatrix);
