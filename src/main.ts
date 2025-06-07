@@ -1,5 +1,7 @@
 import { LSystem, Rule } from './lsystem'; // Import from .ts (implicitly)
 import { vec3, vec4, mat4 } from 'gl-matrix';
+import vertexShaderSource from './vertex.glsl';
+import fragmentShaderSource from './fragment.glsl';
 
 let gl: WebGLRenderingContext | null = null;
 let buffer: WebGLBuffer | null = null;
@@ -11,22 +13,6 @@ const distance: number = 0.05;
 let maxY: number = 0.01;
 const rotationDelta: number = 1 * (Math.PI / 180);
 let rotation: number = 0;
-
-const load = async (url: string): Promise<string | undefined> => {
-    let src: string | undefined;
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            console.error(`Failed to load ${url}: ${response.statusText}`);
-            return undefined;
-        }
-        src = await response.text();
-    } catch (error) {
-        console.error(`Error fetching ${url}:`, error);
-        return undefined;
-    }
-    return src;
-};
 
 function display(): void {
     if (!gl || !program) {
@@ -221,21 +207,19 @@ function init_shader(src: string, type: number): WebGLShader | null {
     return shader;
 }
 
-const init_shader_program = async (): Promise<void> => {
+const init_shader_program = (): void => {
     if (!gl) {
         console.error("WebGL context not available for shader program initialization.");
         return;
     }
-    const vertexShaderSource = await load("src/vertex.glsl");
-    if (!vertexShaderSource) {
-        console.error("Failed to load vertex shader source.");
+    if (typeof vertexShaderSource !== 'string' || vertexShaderSource.trim() === "") {
+        console.error("Vertex shader source is not a valid string or is empty.");
         return;
     }
     const vs = init_shader(vertexShaderSource, gl.VERTEX_SHADER);
 
-    const fragmentShaderSource = await load("src/fragment.glsl");
-    if (!fragmentShaderSource) {
-        console.error("Failed to load fragment shader source.");
+    if (typeof fragmentShaderSource !== 'string' || fragmentShaderSource.trim() === "") {
+        console.error("Fragment shader source is not a valid string or is empty.");
         return;
     }
     const fs = init_shader(fragmentShaderSource, gl.FRAGMENT_SHADER);
@@ -331,7 +315,7 @@ function init_lsystem(): void {
     console.log("Done.");
 }
 
-const main = async (): Promise<void> => {
+const main = function main(): void {
     gl = get_web_gl_context();
     if (!gl) {
         console.error("Failed to initialize WebGL. Application cannot start.");
@@ -340,14 +324,13 @@ const main = async (): Promise<void> => {
 
     init();
     init_web_gl();
-    await init_shader_program();
+    init_shader_program();
     if (!program) { 
          console.error("Shader program failed to initialize. Application cannot start.");
          return;
     }
     init_lsystem();
     init_geometry();
-    // reshape(); // reshape is called at the end of init_geometry
 };
 
-main(); // Start the application
+main();

@@ -23,6 +23,13 @@ module.exports = {
         ],
         exclude: [/node_modules/, path.resolve(__dirname, 'dist')],
       },
+      {
+        test: /\.(glsl|vs|fs|vert|frag)$/,
+        exclude: /node_modules/,
+        use: [
+          'raw-loader'
+        ]
+      },
     ],
   },
   resolve: {
