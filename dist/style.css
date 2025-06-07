@@ -163,9 +163,14 @@ button {
 }
 
 #legend-entries > div {
-    margin-top: 0.5em;
-    padding-left: 1em;
+    margin-bottom: 0.5em;
+    margin-left: 1em;
     cursor: pointer;
+
+    padding: 0.1em;
+
+    background-color: var(--base02);
+    border-radius: 4px;
 }
 
 #legend-entries > div.no-demo {
@@ -178,7 +183,7 @@ button {
     font-weight: bold;
     font-family: "Fira Mono", monospace;
     display: inline-block;
-    width: 3ex;
+    width: 6ex;
     text-align: center;
     justify-content: center;
 }

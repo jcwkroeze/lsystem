@@ -179,63 +179,46 @@ export class Renderer {
         const lsystemString = this.lSystem.result;
         for (let i = 0; i < lsystemString.length; i++) {
             const char = lsystemString.charAt(i);
-            switch (char) {
-                case "F": {
-                    const nextPosition = vec4.create();
-                    vec4.add(nextPosition, position, direction);
+            if ((char >= "A") && (char <= "I")) {
+                const nextPosition = vec4.create();
+                vec4.add(nextPosition, position, direction);
 
-                    vertices.push(position[0]);
-                    vertices.push(position[1]);
-                    vertices.push(position[2]);
+                vertices.push(position[0]);
+                vertices.push(position[1]);
+                vertices.push(position[2]);
 
-                    // TODO(jan): Push colours.
+                // TODO(jan): Push colours.
 
-                    vertices.push(nextPosition[0]);
-                    vertices.push(nextPosition[1]);
-                    vertices.push(nextPosition[2]);
+                vertices.push(nextPosition[0]);
+                vertices.push(nextPosition[1]);
+                vertices.push(nextPosition[2]);
 
-                    position = nextPosition;
-                    this.vertexCount += 2;
+                position = nextPosition;
+                this.vertexCount += 2;
 
-                    if (position[1] > this.maxY) {
-                        this.maxY = position[1];
-                    }
-                    break;
+                if (position[1] > this.maxY) {
+                    this.maxY = position[1];
                 }
-                case "f": {
-                    const nextPosition = vec4.create();
-                    vec4.add(nextPosition, position, direction);
-                    position = nextPosition;
-                    break;
-                }
-                case "[": {
-                    positionStack.push(vec4.clone(position));
-                    directionStack.push(vec4.clone(direction));
-                    break;
-                }
-                case "]": {
-                    const p = positionStack.pop();
-                    const d = directionStack.pop();
-                    if (p) position = p;
-                    if (d) direction = d;
-                    break;
-                }
-                case "+": {
-                    vec4.transformMat4(direction, direction, positiveZRotation);
-                    break;
-                }
-                case "-": {
-                    vec4.transformMat4(direction, direction, negativeZRotation);
-                    break;
-                }
-                case "*": {
-                    vec4.transformMat4(direction, direction, positiveXRotation);
-                    break;
-                }
-                case "/": {
-                    vec4.transformMat4(direction, direction, negativeXRotation);
-                    break;
-                }
+            } else if ((char >= "a") && (char <= "i")) {
+                const nextPosition = vec4.create();
+                vec4.add(nextPosition, position, direction);
+                position = nextPosition;
+            } else if (char == "[") {
+                positionStack.push(vec4.clone(position));
+                directionStack.push(vec4.clone(direction));
+            } else if (char == "]") {
+                const p = positionStack.pop();
+                const d = directionStack.pop();
+                if (p) position = p;
+                if (d) direction = d;
+            } else if (char == "+") {
+                vec4.transformMat4(direction, direction, positiveZRotation);
+            } else if (char == "-") {
+                vec4.transformMat4(direction, direction, negativeZRotation);
+            } else if (char == "*") {
+                vec4.transformMat4(direction, direction, positiveXRotation);
+            } else if (char == "/") {
+                vec4.transformMat4(direction, direction, negativeXRotation);
             }
         }
         console.log("Done.");

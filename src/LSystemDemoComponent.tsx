@@ -164,7 +164,7 @@ extends React.Component<
                     <h1>Legend</h1>
                     <div id="legend-entries">
                         <div className="no-demo">
-                            <span className="symbol">F</span>
+                            <span className="symbol">A-I</span>
                             <span className="symbol-description">Create a line segment along the current direction.</span>
                         </div>
 
