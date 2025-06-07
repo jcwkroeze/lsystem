@@ -49,6 +49,71 @@ extends React.Component<
 
     submit () { }
 
+    demoZPositive() {
+        this.setState({
+            axiom: "F",
+            angle: 30,
+            stepCount: 3,
+            rules: [
+                new Rule("F", "F[+F]F")
+            ]
+        }, () => {
+            this.updateLSystem();
+        });
+    }
+
+    demoZNegative() {
+        this.setState({
+            axiom: "F",
+            angle: 30,
+            stepCount: 3,
+            rules: [
+                new Rule("F", "F[-F]F")
+            ]
+        }, () => {
+            this.updateLSystem();
+        });
+    }
+
+    demoXPositive() {
+        this.setState({
+            axiom: "F",
+            angle: 30,
+            stepCount: 3,
+            rules: [
+                new Rule("F", "F[*F]F")
+            ]
+        }, () => {
+            this.updateLSystem();
+        });
+    }
+
+    demoXNegative() {
+        this.setState({
+            axiom: "F",
+            angle: 30,
+            stepCount: 3,
+            rules: [
+                new Rule("F", "F[/F]F")
+            ]
+        }, () => {
+            this.updateLSystem();
+        });
+    }
+
+    demoSkip() {
+        this.setState({
+            axiom: "F",
+            angle: 30,
+            stepCount: 3,
+            rules: [
+                new Rule("F", "F[+fF][-fF]F")
+            ]
+        }, () => {
+            this.updateLSystem();
+        });
+    }
+
     render() {
         return <>
             <div id="left-panel">
@@ -81,24 +146,46 @@ extends React.Component<
                 />
                 <div id="legend">
                     <h1>Legend</h1>
-                    <div id="legend-entries" className="form">
-                        <span className="symbol">+</span>
-                        <span className="symbol-description">Turn around the Z-axis in the positive direction.</span>
+                    <div id="legend-entries">
+                        <div className="no-demo">
+                            <span className="symbol">F</span>
+                            <span className="symbol-description">Create a line segment along the current direction.</span>
+                        </div>
 
-                        <span className="symbol">-</span>
-                        <span className="symbol-description">Turn around the Z-axis in the negative direction.</span>
+                        <div className="no-demo">
+                            <span className="symbol">[</span>
+                            <span className="symbol-description">Push the current state onto the stack.</span>
+                        </div>
 
-                        <span className="symbol">*</span>
-                        <span className="symbol-description">Turn around the X-axis in the positive direction.</span>
+                        <div className="no-demo">
+                            <span className="symbol">]</span>
+                            <span className="symbol-description">Pop the last state from the stack.</span>
+                        </div>
 
-                        <span className="symbol">/</span>
-                        <span className="symbol-description">Turn around the X-axis in the negative direction.</span>
+                        <div onClick={() => this.demoZPositive()}>
+                            <span className="symbol">+</span>
+                            <span className="symbol-description">Turn around the Z-axis in the positive direction.</span>
+                        </div>
+        
+                        <div onClick={() => this.demoZNegative()}>
+                            <span className="symbol">-</span>
+                            <span className="symbol-description">Turn around the Z-axis in the negative direction.</span>
+                        </div>
 
-                        <span className="symbol">F</span>
-                        <span className="symbol-description">Create a line segment along the current direction.</span>
+                        <div onClick={() => this.demoXPositive()}>
+                            <span className="symbol">*</span>
+                            <span className="symbol-description">Turn around the X-axis in the positive direction.</span>
+                        </div>
 
-                        <span className="symbol">f</span>
-                        <span className="symbol-description">Skip forward along the current direction.</span>
+                        <div onClick={() => this.demoXNegative()}>
+                            <span className="symbol">/</span>
+                            <span className="symbol-description">Turn around the X-axis in the negative direction.</span>
+                        </div>
+
+                        <div onClick={() => this.demoSkip()}>
+                            <span className="symbol">f</span>
+                            <span className="symbol-description">Skip forward along the current direction.</span>
+                        </div>
                     </div>
                 </div>
             </div>

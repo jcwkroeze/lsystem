@@ -38,12 +38,17 @@ html, body, #app-root {
 
     background-color: var(--bg-color);
     color: var(--fg-color);
-    font-family: 'Fira Mono', monospace;
+    font-family: "Lato", sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Josefin Sans', sans-serif;
     color: var(--heading-color);
+}
+
+h1 {
+    margin-bottom: 0.25em;
+    margin-top: 0.5em;
 }
 
 a, a:visited {
@@ -52,7 +57,6 @@ a, a:visited {
 }
 
 p {
-    font-family: 'Lato', sans-serif;
     text-align: justify;
     color: var(--base2);
     margin: 0.5em 0;
@@ -120,7 +124,8 @@ button {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     max-width: 400px;
     
     justify-content: center;
@@ -136,14 +141,31 @@ button {
     height: 200px;
 }
 
+#legend {
+    display: flex;
+    flex-direction: column;
+}
+
+#legend-entries > div {
+    margin-top: 0.25em;
+    cursor: pointer;
+}
+
+#legend-entries > div.no-demo {
+    cursor: default;
+}
+
 #legend .symbol {
     color: var(--accent-green);
-    font-size: 130%;
+    font-size: 110%;
     font-weight: bold;
     font-family: "Fira Mono", monospace;
+    display: inline-block;
+    width: 2ex;
+    text-align: center;
+    justify-content: center;
 }
 
 #legend .symbol-description {
     color: var(--base2);
-    font-family: "Lato", sans-serif;
 }
