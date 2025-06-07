@@ -77,17 +77,22 @@ export class LSystem {
         recomputeNeeded = recomputeNeeded || (this.axiom !== newState.axiom);
         this.axiom = newState.axiom;
 
-        if (!recomputeNeeded && (this.rules.length === newState.rules.length)) {
-            for (let i = 0; i < this.rules.length; i++) {
-                const a = this.rules[i];
-                const b = newState.rules[i];
+        if (!recomputeNeeded) {
+            if (this.rules.length !== newState.rules.length) {
+                recomputeNeeded = true;
+            } else {
+                for (let i = 0; i < this.rules.length; i++) {
+                    const a = this.rules[i];
+                    const b = newState.rules[i];
 
-                recomputeNeeded = recomputeNeeded || (!a.equal(b));
+                    recomputeNeeded = recomputeNeeded || (!a.equal(b));
 
-                if (recomputeNeeded)
-                    break;
+                    if (recomputeNeeded)
+                        break;
+                }
             }
         }
+        this.rules = newState.rules;
 
         if (!recomputeNeeded && (this.stepCount !== newState.stepCount)) {
             const delta = newState.stepCount - this.stepCount;
@@ -119,10 +124,7 @@ export class LSystem {
             let searchString = currentString; // Use a mutable copy for search modifications
             let tempNewString = newString; // Use a temporary string for building the new state within a rule's iteration
 
-            let loopIterations = 0; // Safety break for very complex rules
-
             while (last_pos < searchString.length) {
-                loopIterations++;
                 let pos_relative = searchString.substring(last_pos).search(rule.predecessor);
                 if (pos_relative === -1) break; // No more matches for this rule in the rest of the string
 
