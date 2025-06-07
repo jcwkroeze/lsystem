@@ -2,7 +2,6 @@
 lsystem.ts --- Basic L-System parser refactored to TypeScript.
 
 Copyright (C) 2014 Jan CW Kroeze
-(Modified for TypeScript migration)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -78,9 +77,8 @@ export class LSystem {
       let currentMatchPos = 0; // Tracks position in the original newString for replacements
 
       let loopIterations = 0; // Safety break for very complex rules
-      const MAX_ITERATIONS = 1000; // Define a max iteration count
 
-      while (last_pos < searchString.length && loopIterations < MAX_ITERATIONS) {
+      while (last_pos < searchString.length) {
         loopIterations++;
         let pos_relative = searchString.substring(last_pos).search(rule.predecessor);
         if (pos_relative === -1) break; // No more matches for this rule in the rest of the string
@@ -145,9 +143,6 @@ export class LSystem {
         } else {
           last_pos = pos_absolute_in_search + match_length_in_search; // Skip this match and continue search
         }
-      }
-      if (loopIterations >= MAX_ITERATIONS) {
-        console.warn("LSystem.step: Max iterations reached for a rule, potentially infinite loop.");
       }
       newString = tempNewString; // Update newString with changes from this rule
       currentString = newString; // For the next rule, search in the result of the previous rule

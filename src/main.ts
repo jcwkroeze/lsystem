@@ -15,6 +15,8 @@ class LSystemDemo {
     private readonly rotationDelta: number = 1 * (Math.PI / 180);
     private rotation: number = 0;
 
+    private stepCount = 1;
+
     constructor() {
         this.gl = this.get_web_gl_context();
         if (!this.gl) {
@@ -114,6 +116,17 @@ class LSystemDemo {
     }
 
     private keyboard(ev: KeyboardEvent): void {
+        if (ev.key === '+') {
+            this.stepCount++;
+            console.log("Increasing step count to " + this.stepCount);
+            this.init_lsystem();
+            this.init_geometry();
+        } else if (ev.key === '-') {
+            this.stepCount--,
+            console.log("Decreasing step count to " + this.stepCount);
+            this.init_lsystem();
+            this.init_geometry();
+        }
         this.update();
     }
 
@@ -206,6 +219,10 @@ class LSystemDemo {
         }
         console.log("Done.");
         console.log("Max Y = " + this.maxY);
+
+        if (this.buffer) {
+            this.gl.deleteBuffer(this.buffer);
+        }
 
         this.buffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
@@ -336,9 +353,9 @@ class LSystemDemo {
         this.lsystem.addRule(rule);
 
         console.log("Starting L-system construction...");
-        this.lsystem.step();
-        this.lsystem.step();
-        this.lsystem.step();
+        for (let i = 0; i < this.stepCount; i++) {
+            this.lsystem.step();
+        }
         console.log("Done.");
     }
 }
