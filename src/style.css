@@ -1,0 +1,34 @@
+* {
+    all: unset;
+}
+
+style, script {
+    display: none;
+}
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: row;
+}
+
+html > head > title {
+    display: none;
+}
+
+#canvas-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+#canvas {
+    display: flex;
+}
+
+#controls {
+    display: flex;
+    flex-direction: column;
+}

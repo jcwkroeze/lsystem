@@ -187,9 +187,9 @@ function init_shader(src, type) {
 }
 
 function init_shader_program() {
-    var vertexShader = load("vertex.glsl");
+    var vertexShader = load("src/vertex.glsl");
     var vs = init_shader(vertexShader, gl.VERTEX_SHADER);
-    var fragmentShader = load("fragment.glsl");
+    var fragmentShader = load("src/fragment.glsl");
     var fs = init_shader(fragmentShader, gl.FRAGMENT_SHADER);
 
     program = gl.createProgram();
@@ -209,9 +209,10 @@ function init_web_gl() {
 }
 
 function reshape() {
-    /* This gets the CSS width and height. */
-    var newWidth = $("canvas").width();
-    var newHeight = $("canvas").height();
+    const container = document.getElementById("canvas-container");
+    const containerRect = container.getBoundingClientRect();
+    var newWidth = containerRect.width;
+    var newHeight = containerRect.height;
 
     console.log("Reshaping, width = " + newWidth + ", height = " + newHeight + ".");
 
