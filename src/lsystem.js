@@ -40,7 +40,7 @@ LSystem.prototype.step = function()
    var string = this.string;
    var newString = this.string;
 
-   $.each(this.rules, function(idx, rule)
+   this.rules.forEach(function(rule)
    {
       var last_pos = 0;
       var pos = string.slice(last_pos).search(rule.predecessor);

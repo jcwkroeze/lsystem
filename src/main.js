@@ -11,16 +11,12 @@ var rotation = 0;
 var vertexShader;
 var fragmentShader;
 
-function load(path) {
+const load = async (url) => {
     var src;
 
-    $.ajax({
-        async: false,
-        url: path,
-        success: function (result) {
-            src = result;
-        }
-    });
+    await fetch(url)
+        .then(response => response.text())
+        .then(text => src = text);
 
     return src;
 }
@@ -94,8 +90,8 @@ function update() {
 }
 
 function init() {
-    $(window).resize(reshape);
-    $(window).keypress(keyboard);
+    window.onresize = reshape;
+    window.onkeyup = keyboard;
 
     window.setInterval(update, 16);
 }
@@ -186,10 +182,10 @@ function init_shader(src, type) {
     return shader;
 }
 
-function init_shader_program() {
-    var vertexShader = load("src/vertex.glsl");
+const init_shader_program = async () => {
+    var vertexShader = await load("src/vertex.glsl");
     var vs = init_shader(vertexShader, gl.VERTEX_SHADER);
-    var fragmentShader = load("src/fragment.glsl");
+    var fragmentShader = await load("src/fragment.glsl");
     var fs = init_shader(fragmentShader, gl.FRAGMENT_SHADER);
 
     program = gl.createProgram();
@@ -224,11 +220,10 @@ function reshape() {
     var maxX = +worldWidth / 2.0;
     console.log("minX = " + minX + ", maxX = " + maxX);
 
-    /* This, however, sets the values for the actual HTML element to be
-     the same as the CSS. */
-    var canvas = $("canvas");
-    canvas.attr("width", newWidth);
-    canvas.attr("height", newHeight);
+    // NOTE(jan): This sets the CSS size to be the same as the canvas size 1-1 pixels.
+    const canvas = document.querySelector("canvas");
+    canvas.setAttribute("width", newWidth);
+    canvas.setAttribute("height", newHeight);
     gl.viewport(0, 0, newWidth, newHeight);
 
     var projectionMatrix = mat4.create();
@@ -254,18 +249,13 @@ function init_lsystem() {
     console.log("Done.");
 }
 
-function main() {
+const main = async () => {
     gl = get_web_gl_context();
 
     init();
     init_web_gl();
-    init_shader_program();
+    await init_shader_program();
     init_lsystem();
     init_geometry();
     reshape();
 }
-
-$(document).ready(function () {
-    main();
-});
-
