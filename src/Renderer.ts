@@ -153,6 +153,8 @@ export class Renderer {
             return;
         }
 
+        this.maxY = 0.01;
+
         this.vertexCount = 0;
         const vertices: number[] = [];
         const positionStack: vec4[] = [];
