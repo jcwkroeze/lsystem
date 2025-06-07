@@ -30,7 +30,7 @@ export class LSystemControlComponent extends React.Component<LSystemControlsProp
 
         return (
             <div id="controls">
-                <h1>L-System Configuration</h1>
+                <h1>Configuration</h1>
                 <div className="form">
                     <label htmlFor="axiom">Axiom</label>
                     <input

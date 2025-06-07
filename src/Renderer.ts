@@ -228,11 +228,11 @@ export class Renderer {
                     vec4.transformMat4(direction, direction, negativeZRotation);
                     break;
                 }
-                case "/": {
+                case "*": {
                     vec4.transformMat4(direction, direction, positiveXRotation);
                     break;
                 }
-                case "*": {
+                case "/": {
                     vec4.transformMat4(direction, direction, negativeXRotation);
                     break;
                 }
@@ -333,7 +333,7 @@ export class Renderer {
             console.error("WebGL context not available for reshape.");
             return;
         }
-        const container = document.getElementById("canvas-container");
+        const container = document.getElementById("left-panel");
         if (!container) {
             console.error("Could not find canvas-container element.");
             return;
