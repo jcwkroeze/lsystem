@@ -114,6 +114,19 @@ extends React.Component<
         });
     }
 
+    exampleAlgea() {
+        this.setState({
+            axiom: "F",
+            angle: 22.5,
+            stepCount: 4,
+            rules: [
+                new Rule("F", "F[+F]F[-F][F]")
+            ]
+        }, () => {
+            this.updateLSystem();
+        });
+    }
+
     render() {
         return <>
             <div id="left-panel">
@@ -121,6 +134,7 @@ extends React.Component<
                     Your browser does not support HTML5.
                 </canvas>
             </div>
+
             <div id="right-panel">
                 <div id="description">
                     <h1>L-System Demo</h1>
@@ -133,6 +147,7 @@ extends React.Component<
                         Use the controls below to set your parameters and click <span className="button-color">Apply Configuration</span> to update the visualization.
                     </p>
                 </div>
+
                 <LSystemControlComponent
                     axiom={this.state.axiom}
                     rules={this.state.rules}
@@ -144,6 +159,7 @@ extends React.Component<
                     onStepCountChange={(stepCount) => this.setState({ stepCount })}
                     onSubmit={() => this.updateLSystem()}
                 />
+                
                 <div id="legend">
                     <h1>Legend</h1>
                     <div id="legend-entries">
@@ -186,6 +202,13 @@ extends React.Component<
                             <span className="symbol">f</span>
                             <span className="symbol-description">Skip forward along the current direction.</span>
                         </div>
+                    </div>
+
+                    <div id="examples">
+                        <h1>Examples</h1>
+                        <ul>
+                            <li onClick={() => this.exampleAlgea()}>Lindenmayer's original algea example.</li>
+                        </ul>
                     </div>
                 </div>
             </div>

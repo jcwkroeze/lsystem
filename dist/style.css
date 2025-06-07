@@ -28,6 +28,22 @@
     --selected-color: var(--accent-cyan);
 }
 
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--base01);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--base1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--base2);
+}
+
 html, body, #app-root {
     width: 100vw;
     height: 100vh;
@@ -47,8 +63,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-    margin-bottom: 0.25em;
-    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    margin-top: 1em;
 }
 
 a, a:visited {
@@ -129,7 +145,7 @@ button {
     max-width: 400px;
     
     justify-content: center;
-    margin: 1em;
+    padding: 1em;
 }
 
 #right-panel #controls {
@@ -147,7 +163,8 @@ button {
 }
 
 #legend-entries > div {
-    margin-top: 0.25em;
+    margin-top: 0.5em;
+    padding-left: 1em;
     cursor: pointer;
 }
 
@@ -161,11 +178,16 @@ button {
     font-weight: bold;
     font-family: "Fira Mono", monospace;
     display: inline-block;
-    width: 2ex;
+    width: 3ex;
     text-align: center;
     justify-content: center;
 }
 
 #legend .symbol-description {
     color: var(--base2);
+}
+
+#examples li {
+    cursor: pointer;
+    color: var(--accent-cyan);
 }
