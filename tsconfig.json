@@ -115,7 +115,7 @@
   "exclude": [
     "node_modules",
     "dist",
-    "src/tests.js",
+    "src/test/tests.js",
     "webpack.config.js"
   ]
 }

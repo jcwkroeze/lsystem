@@ -1,7 +1,7 @@
-import { LSystem, Rule } from './lsystem'; // Import from .ts (implicitly)
+import { LSystem, Rule } from './lsystem';
 import { vec3, vec4, mat4 } from 'gl-matrix';
-import vertexShaderSource from './vertex.glsl';
-import fragmentShaderSource from './fragment.glsl';
+import vertexShaderSource from './shaders/vertex.glsl';
+import fragmentShaderSource from './shaders/fragment.glsl';
 
 let gl: WebGLRenderingContext | null = null;
 let buffer: WebGLBuffer | null = null;

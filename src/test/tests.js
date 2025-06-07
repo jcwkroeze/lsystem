@@ -1,5 +1,5 @@
 import QUnit from 'qunit';
-import { LSystem, Rule, extractBrackets, spaces, pad } from './lsystem.js';
+import { LSystem, Rule, extractBrackets, spaces, pad } from '../lsystem.js';
 
 QUnit.test("Rule constructor", function()
 {
