@@ -31,7 +31,6 @@ export class Renderer {
     private buffer: WebGLBuffer | null = null;
     private program: WebGLProgram | null = null;
     private vertexCount: number = 0;
-    private readonly angle: number = 45 * (Math.PI / 180);
     private readonly distance: number = 0.05;
     private maxY: number = 0.01;
     private readonly rotationDelta: number = 1 * (Math.PI / 180);
@@ -153,6 +152,7 @@ export class Renderer {
             return;
         }
 
+        const angle = this.lSystem.angle * (Math.PI / 180);
         this.maxY = 0.01;
 
         this.vertexCount = 0;
@@ -167,13 +167,13 @@ export class Renderer {
 
         const positiveZRotation = mat4.create();
         const negativeZRotation = mat4.create();
-        mat4.rotateZ(positiveZRotation, positiveZRotation, this.angle);
-        mat4.rotateZ(negativeZRotation, negativeZRotation, -this.angle);
+        mat4.rotateZ(positiveZRotation, positiveZRotation, angle);
+        mat4.rotateZ(negativeZRotation, negativeZRotation, -angle);
 
         const positiveXRotation = mat4.create();
         const negativeXRotation = mat4.create();
-        mat4.rotateX(positiveXRotation, positiveXRotation, this.angle);
-        mat4.rotateX(negativeXRotation, negativeXRotation, -this.angle);
+        mat4.rotateX(positiveXRotation, positiveXRotation, angle);
+        mat4.rotateX(negativeXRotation, negativeXRotation, -angle);
 
         console.log("Starting geometry generation...");
         const lsystemString = this.lSystem.result;

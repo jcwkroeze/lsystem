@@ -31,17 +31,16 @@ export class LSystemControlComponent extends React.Component<LSystemControlsProp
         return (
             <div id="controls">
                 <h1>L-System Configuration</h1>
-                <div>
-                    <label htmlFor="axiom">Axiom: </label>
+                <div className="form">
+                    <label htmlFor="axiom">Axiom</label>
                     <input
                         type="text"
                         id="axiom"
                         value={axiom}
                         onChange={(e) => onAxiomChange(e.target.value)}
                     />
-                </div>
-                <div>
-                    <label htmlFor="rules">Rules (e.g., F:F[+F]F): </label>
+
+                    <label htmlFor="rules">Rules</label>
                     <textarea
                         id="rules"
                         value={this.rulesToString(rules)}
@@ -50,20 +49,17 @@ export class LSystemControlComponent extends React.Component<LSystemControlsProp
                             this.stringToRules(e.target.value)
                         )}
                         rows={3}
-                        style={{ width: '90%' }}
                     />
-                </div>
-                <div>
-                    <label htmlFor="angle">Angle: </label>
+
+                    <label htmlFor="angle">Angle</label>
                     <input
                         type="number"
                         id="angle"
                         value={angle}
                         onChange={(e) => onAngleChange(Number(e.target.value))}
                     />
-                </div>
-                <div>
-                    <label htmlFor="stepCount">Iterations: </label>
+
+                    <label htmlFor="stepCount">Iterations</label>
                     <input
                         type="number"
                         id="stepCount"
@@ -73,9 +69,7 @@ export class LSystemControlComponent extends React.Component<LSystemControlsProp
                         onChange={(e) => onStepCountChange(Number(e.target.value))}
                     />
                 </div>
-                <div>
-                    <button onClick={onSubmit}>Apply Configuration</button>
-                </div>
+                <button onClick={onSubmit}>Apply Configuration</button>
             </div>
         );
     }

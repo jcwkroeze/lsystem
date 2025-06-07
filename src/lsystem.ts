@@ -53,9 +53,11 @@ export class LSystem {
     constructor(
         public axiom = "F",
         public rules = [new Rule("F", "F[+F]F[-F]F[/F]F[*F]")],
-        public angle = 45,
+        public angle = 15,
     ) {
         this.results = [this.axiom];
+        this.step();
+        this.step();
     }
 
     get result(): string {
