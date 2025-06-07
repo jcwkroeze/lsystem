@@ -1,25 +1,30 @@
 {
   "compilerOptions": {
+    "target": "ES2020",
+    "module": "esnext",
+
+    // Bundler mode.
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+
+    // Linting.
+    "allowJs": false,
+    "alwaysStrict": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
+    "noImplicitThis": true,
     "strictPropertyInitialization": true,
     "strictNullChecks": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "target": "es2020",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-    "allowJs": false,                                    /* Do not allow JavaScript files as part of the program for now. */
-    "jsx": "react-jsx",                                  /* Specify what JSX code is generated. */
-    "rootDir": "./src",                                  /* Specify the root folder within your source files. */
-    "outDir": "./dist",
-    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
-    "strict": true,                                      /* Enable all strict type-checking options. */
+
+    // Debugging.
+    "sourceMap": true,
   },
   "include": [
     "src/**/*"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "src/test/tests.js",
-    "webpack.config.js"
-  ]
 }
