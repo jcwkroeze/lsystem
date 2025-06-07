@@ -110,7 +110,7 @@ export class LSystem {
 
             this.results.push(this.axiom);
 
-            for (let i = 0; i <= newState.stepCount; i++) {
+            for (let i = 0; i < newState.stepCount; i++) {
                 this.step();
             }
         }
