@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "build": "npx webpack --mode=production",
+    "dev": "npx webpack --mode=development --watch"
+  },
+  "devDependencies": {
+    "@types/gl-matrix": "^2.4.5",
+    "@types/qunit": "^2.19.12",
+    "browser-sync-webpack-plugin": "^2.4.0",
+    "gl-matrix": "^3.4.3",
+    "qunit": "^2.24.1",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
+  }
+}
