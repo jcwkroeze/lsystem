@@ -74,7 +74,6 @@ export class LSystem {
       let last_pos = 0;
       let searchString = currentString; // Use a mutable copy for search modifications
       let tempNewString = newString; // Use a temporary string for building the new state within a rule's iteration
-      let currentMatchPos = 0; // Tracks position in the original newString for replacements
 
       let loopIterations = 0; // Safety break for very complex rules
 
