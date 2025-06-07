@@ -58,6 +58,7 @@ export class LSystem {
         this.results = [this.axiom];
         this.step();
         this.step();
+        this.step();
     }
 
     get result(): string {
@@ -65,7 +66,7 @@ export class LSystem {
     }
 
     get stepCount(): number {
-        return this.results.length;
+        return this.results.length - 1;
     }
 
     setState(newState: LSystemState): void {
@@ -101,7 +102,7 @@ export class LSystem {
                 this.step();
             }
 
-            this.results.length = newState.stepCount;
+            this.results.length = newState.stepCount + 1;
         }
         
         if (recomputeNeeded) {
@@ -109,7 +110,7 @@ export class LSystem {
 
             this.results.push(this.axiom);
 
-            for (let i = 0; i < newState.stepCount; i++) {
+            for (let i = 0; i <= newState.stepCount; i++) {
                 this.step();
             }
         }
