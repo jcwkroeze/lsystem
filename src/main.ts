@@ -3,334 +3,345 @@ import { vec3, vec4, mat4 } from 'gl-matrix';
 import vertexShaderSource from './shaders/vertex.glsl';
 import fragmentShaderSource from './shaders/fragment.glsl';
 
-let gl: WebGLRenderingContext | null = null;
-let buffer: WebGLBuffer | null = null;
-let program: WebGLProgram | null = null;
-let vertexCount: number = 0;
-let lsystem: LSystem | null = null;
-const angle: number = 45 * (Math.PI / 180);
-const distance: number = 0.05;
-let maxY: number = 0.01;
-const rotationDelta: number = 1 * (Math.PI / 180);
-let rotation: number = 0;
+class LSystemDemo {
+    private gl: WebGLRenderingContext | null = null;
+    private buffer: WebGLBuffer | null = null;
+    private program: WebGLProgram | null = null;
+    private vertexCount: number = 0;
+    private lsystem: LSystem | null = null;
+    private readonly angle: number = 45 * (Math.PI / 180);
+    private readonly distance: number = 0.05;
+    private maxY: number = 0.01;
+    private readonly rotationDelta: number = 1 * (Math.PI / 180);
+    private rotation: number = 0;
 
-function display(): void {
-    if (!gl || !program) {
-        console.error("WebGL context or program not initialized for display.");
-        return;
-    }
-    const yAxis = vec3.fromValues(0, 1, 0);
-    const worldMatrix = mat4.create();
-    mat4.rotate(worldMatrix, worldMatrix, rotation, yAxis);
-
-    const eye = vec3.fromValues(0, maxY / 2.0, maxY / 0.5);
-    const center = vec3.fromValues(0, maxY / 2.0, 0);
-    const up = vec3.fromValues(0, 1, 0);
-
-    const viewMatrix = mat4.create();
-    mat4.lookAt(viewMatrix, eye, center, up);
-
-    let loc = findUniform("world");
-    if (loc) gl.uniformMatrix4fv(loc, false, worldMatrix);
-
-    loc = findUniform("view");
-    if (loc) gl.uniformMatrix4fv(loc, false, viewMatrix);
-
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.drawArrays(gl.LINES, 0, vertexCount);
-}
-
-function findAttribute(name: string): number {
-    if (!gl || !program) return -1;
-    const loc = gl.getAttribLocation(program, name);
-    if (loc === -1) {
-        console.error("Could not find attribute '" + name + "'.");
-    }
-    return loc;
-}
-
-function findUniform(name: string): WebGLUniformLocation | null {
-    if (!gl || !program) return null;
-    const loc = gl.getUniformLocation(program, name);
-    if (loc === null) {
-        console.error("Could not find uniform '" + name + "'.");
-    }
-    return loc;
-}
-
-function get_web_gl_context(): WebGLRenderingContext | null {
-    const canvas = document.getElementById("canvas") as HTMLCanvasElement | null;
-    if (!canvas) {
-        alert("Could not find canvas element.");
-        return null;
-    }
-
-    let context: WebGLRenderingContext | null = null;
-    const names = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
-    for (let i = 0; i < names.length; i++) {
-        try {
-            context = canvas.getContext(names[i]) as WebGLRenderingContext | null;
-        } catch (e) { /* ignore */ }
-
-        if (context) {
-            return context;
+    constructor() {
+        this.gl = this.get_web_gl_context();
+        if (!this.gl) {
+            console.error("Failed to initialize WebGL. Application cannot start.");
+            return;
         }
-    }
-    if (!context) {
-        alert("Unable to initialize WebGL. Your browser may not support it.");
-    }
-    return null;
-}
 
-function update(): void {
-    display();
-    rotation += rotationDelta;
-}
-
-function init(): void {
-    window.onresize = reshape;
-    window.onkeyup = keyboard;
-    window.setInterval(update, 16);
-}
-
-function keyboard(ev: KeyboardEvent): void {
-    update();
-}
-
-function init_geometry(): void {
-    if (!gl || !program || !lsystem) {
-        console.error("WebGL context, program, or L-System not initialized for geometry generation.");
-        return;
+        this.init(); // Sets up event listeners and interval
+        this.init_web_gl();
+        this.init_shader_program();
+        if (!this.program) {
+            console.error("Shader program failed to initialize. Application cannot start.");
+            return;
+        }
+        this.init_lsystem();
+        this.init_geometry();
+        this.reshape(); // Call reshape once to set initial projection and display
     }
 
-    vertexCount = 0;
-    const vertices: number[] = [];
-    const positionStack: vec4[] = [];
-    const directionStack: vec4[] = [];
+    private display(): void {
+        if (!this.gl || !this.program) {
+            console.error("WebGL context or program not initialized for display.");
+            return;
+        }
+        const yAxis = vec3.fromValues(0, 1, 0);
+        const worldMatrix = mat4.create();
+        mat4.rotate(worldMatrix, worldMatrix, this.rotation, yAxis);
 
-    let position = vec4.fromValues(0, 0, 0, 1);
-    let direction = vec4.fromValues(0, 1.0, 0, 0);
-    vec4.normalize(direction, direction);
-    vec4.scale(direction, direction, distance);
+        const eye = vec3.fromValues(0, this.maxY / 2.0, this.maxY / 0.5);
+        const center = vec3.fromValues(0, this.maxY / 2.0, 0);
+        const up = vec3.fromValues(0, 1, 0);
 
-    const positiveZRotation = mat4.create();
-    const negativeZRotation = mat4.create();
-    mat4.rotateZ(positiveZRotation, positiveZRotation, angle);
-    mat4.rotateZ(negativeZRotation, negativeZRotation, -angle);
+        const viewMatrix = mat4.create();
+        mat4.lookAt(viewMatrix, eye, center, up);
 
-    const positiveXRotation = mat4.create();
-    const negativeXRotation = mat4.create();
-    mat4.rotateX(positiveXRotation, positiveXRotation, angle);
-    mat4.rotateX(negativeXRotation, negativeXRotation, -angle);
+        let loc = this.findUniform("world");
+        if (loc) this.gl.uniformMatrix4fv(loc, false, worldMatrix);
 
-    console.log("Starting geometry generation...");
-    const lsystemString = lsystem.string;
-    for (let i = 0; i < lsystemString.length; i++) {
-        const char = lsystemString.charAt(i);
-        if (char === "F") {
-            vertices.push(position[0], position[1], position[2], position[3]);
-            vec4.add(position, position, direction);
-            vertices.push(position[0], position[1], position[2], position[3]);
-            if (position[1] > maxY) maxY = position[1];
-            vertexCount += 2;
-        } else if (char === "+") {
-            vec4.transformMat4(direction, direction, positiveZRotation);
-            vec4.normalize(direction, direction);
-            vec4.scale(direction, direction, distance);
-        } else if (char === "-") {
-            vec4.transformMat4(direction, direction, negativeZRotation);
-            vec4.normalize(direction, direction);
-            vec4.scale(direction, direction, distance);
-        } else if (char === "*") {
-            vec4.transformMat4(direction, direction, positiveXRotation);
-            vec4.normalize(direction, direction);
-            vec4.scale(direction, direction, distance);
-        } else if (char === "/") {
-            vec4.transformMat4(direction, direction, negativeXRotation);
-            vec4.normalize(direction, direction);
-            vec4.scale(direction, direction, distance);
-        } else if (char === "[") {
-            positionStack.push(vec4.clone(position));
-            directionStack.push(vec4.clone(direction));
-        } else if (char === "]") {
-            const poppedPosition = positionStack.pop();
-            if (poppedPosition) {
-                position = poppedPosition;
-            } else {
-                console.error("Position stack underflow during L-system parsing.");
-            }
-            const poppedDirection = directionStack.pop();
-            if (poppedDirection) {
-                direction = poppedDirection;
-            } else {
-                console.error("Direction stack underflow during L-system parsing.");
+        loc = this.findUniform("view");
+        if (loc) this.gl.uniformMatrix4fv(loc, false, viewMatrix);
+
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+        this.gl.drawArrays(this.gl.LINES, 0, this.vertexCount);
+    }
+
+    private findAttribute(name: string): number {
+        if (!this.gl || !this.program) return -1;
+        const loc = this.gl.getAttribLocation(this.program, name);
+        if (loc === -1) {
+            console.error("Could not find attribute '" + name + "'.");
+        }
+        return loc;
+    }
+
+    private findUniform(name: string): WebGLUniformLocation | null {
+        if (!this.gl || !this.program) return null;
+        const loc = this.gl.getUniformLocation(this.program, name);
+        if (loc === null) {
+            console.error("Could not find uniform '" + name + "'.");
+        }
+        return loc;
+    }
+
+    private get_web_gl_context(): WebGLRenderingContext | null {
+        const canvas = document.getElementById("canvas") as HTMLCanvasElement | null;
+        if (!canvas) {
+            alert("Could not find canvas element.");
+            return null;
+        }
+
+        let context: WebGLRenderingContext | null = null;
+        const names = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+        for (let i = 0; i < names.length; i++) {
+            try {
+                context = canvas.getContext(names[i]) as WebGLRenderingContext | null;
+            } catch (e) { /* ignore */ }
+
+            if (context) {
+                return context;
             }
         }
-    }
-    console.log("Done.");
-
-    const loc = findAttribute("position");
-    if (loc === -1) return;
-
-    buffer = gl.createBuffer();
-    if (!buffer) {
-        console.error("Failed to create WebGL buffer.");
-        return;
-    }
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-    gl.vertexAttribPointer(loc, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(loc);
-
-    reshape();
-}
-
-function init_shader(src: string, type: number): WebGLShader | null {
-    if (!gl) {
-        console.error("WebGL context not available for shader initialization.");
-        return null;
-    }
-    let shader: WebGLShader | null = gl.createShader(type);
-    if (!shader) {
-        console.error(`Failed to create shader object (type: ${type})`);
+        if (!context) {
+            alert("Unable to initialize WebGL. Your browser may not support it.");
+        }
         return null;
     }
 
-    gl.shaderSource(shader, src);
-    gl.compileShader(shader);
-
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.error("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));
-        gl.deleteShader(shader);
-        return null;
+    private update(): void {
+        this.display();
+        this.rotation += this.rotationDelta;
     }
-    return shader;
+
+    private init(): void {
+        window.onresize = this.reshape.bind(this);
+        window.onkeyup = this.keyboard.bind(this);
+        window.setInterval(this.update.bind(this), 16);
+    }
+
+    private keyboard(ev: KeyboardEvent): void {
+        this.update();
+    }
+
+    private init_geometry(): void {
+        if (!this.gl || !this.program || !this.lsystem) {
+            console.error("WebGL context, program, or L-System not initialized for geometry generation.");
+            return;
+        }
+
+        this.vertexCount = 0;
+        const vertices: number[] = [];
+        const positionStack: vec4[] = [];
+        const directionStack: vec4[] = [];
+
+        let position = vec4.fromValues(0, 0, 0, 1);
+        let direction = vec4.fromValues(0, 1.0, 0, 0);
+        vec4.normalize(direction, direction);
+        vec4.scale(direction, direction, this.distance);
+
+        const positiveZRotation = mat4.create();
+        const negativeZRotation = mat4.create();
+        mat4.rotateZ(positiveZRotation, positiveZRotation, this.angle);
+        mat4.rotateZ(negativeZRotation, negativeZRotation, -this.angle);
+
+        const positiveXRotation = mat4.create();
+        const negativeXRotation = mat4.create();
+        mat4.rotateX(positiveXRotation, positiveXRotation, this.angle);
+        mat4.rotateX(negativeXRotation, negativeXRotation, -this.angle);
+
+        console.log("Starting geometry generation...");
+        const lsystemString = this.lsystem.string;
+        for (let i = 0; i < lsystemString.length; i++) {
+            const char = lsystemString.charAt(i);
+            switch (char) {
+                case "F": {
+                    const nextPosition = vec4.create();
+                    vec4.add(nextPosition, position, direction);
+
+                    vertices.push(position[0]);
+                    vertices.push(position[1]);
+                    vertices.push(position[2]);
+
+                    vertices.push(nextPosition[0]);
+                    vertices.push(nextPosition[1]);
+                    vertices.push(nextPosition[2]);
+
+                    position = nextPosition;
+                    this.vertexCount += 2;
+
+                    if (position[1] > this.maxY) {
+                        this.maxY = position[1];
+                    }
+                    break;
+                }
+                case "f": {
+                    const nextPosition = vec4.create();
+                    vec4.add(nextPosition, position, direction);
+                    position = nextPosition;
+                    break;
+                }
+                case "[": {
+                    positionStack.push(vec4.clone(position));
+                    directionStack.push(vec4.clone(direction));
+                    break;
+                }
+                case "]": {
+                    const p = positionStack.pop();
+                    const d = directionStack.pop();
+                    if (p) position = p;
+                    if (d) direction = d;
+                    break;
+                }
+                case "+": {
+                    vec4.transformMat4(direction, direction, positiveZRotation);
+                    break;
+                }
+                case "-": {
+                    vec4.transformMat4(direction, direction, negativeZRotation);
+                    break;
+                }
+                case "/": {
+                    vec4.transformMat4(direction, direction, positiveXRotation);
+                    break;
+                }
+                case "*": {
+                    vec4.transformMat4(direction, direction, negativeXRotation);
+                    break;
+                }
+            }
+        }
+        console.log("Done.");
+        console.log("Max Y = " + this.maxY);
+
+        this.buffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertices), this.gl.STATIC_DRAW);
+
+        const loc = this.findAttribute("position");
+        if (loc !== -1) {
+            this.gl.vertexAttribPointer(loc, 3, this.gl.FLOAT, false, 0, 0);
+            this.gl.enableVertexAttribArray(loc);
+        }
+    }
+
+    private init_shader(src: string, type: number): WebGLShader | null {
+        if (!this.gl) {
+            console.error("WebGL context not available for shader initialization.");
+            return null;
+        }
+        const shader = this.gl.createShader(type);
+        if (!shader) {
+            console.error("Failed to create shader object.");
+            return null;
+        }
+        this.gl.shaderSource(shader, src);
+        this.gl.compileShader(shader);
+
+        if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
+            console.error("An error occurred compiling the shaders: " + this.gl.getShaderInfoLog(shader));
+            this.gl.deleteShader(shader);
+            return null;
+        }
+        return shader;
+    }
+
+    private init_shader_program(): void {
+        if (!this.gl) {
+            console.error("WebGL context not available for shader program initialization.");
+            return;
+        }
+        if (typeof vertexShaderSource !== 'string' || vertexShaderSource.trim() === "") {
+            console.error("Vertex shader source is not a valid string or is empty.");
+            return;
+        }
+        const vs = this.init_shader(vertexShaderSource, this.gl.VERTEX_SHADER);
+
+        if (typeof fragmentShaderSource !== 'string' || fragmentShaderSource.trim() === "") {
+            console.error("Fragment shader source is not a valid string or is empty.");
+            return;
+        }
+        const fs = this.init_shader(fragmentShaderSource, this.gl.FRAGMENT_SHADER);
+
+        if (!vs || !fs) {
+            console.error("Shader compilation failed. Cannot link program.");
+            if (vs) this.gl.deleteShader(vs);
+            if (fs) this.gl.deleteShader(fs);
+            return;
+        }
+
+        this.program = this.gl.createProgram();
+        if (!this.program) {
+            console.error("Failed to create WebGL program.");
+            this.gl.deleteShader(vs);
+            this.gl.deleteShader(fs);
+            return;
+        }
+        this.gl.attachShader(this.program, vs);
+        this.gl.attachShader(this.program, fs);
+        this.gl.linkProgram(this.program);
+
+        if (!this.gl.getProgramParameter(this.program, this.gl.LINK_STATUS)) {
+            console.error("Unable to initialize the shader program: " + this.gl.getProgramInfoLog(this.program));
+            this.gl.deleteProgram(this.program);
+            this.program = null;
+            this.gl.deleteShader(vs);
+            this.gl.deleteShader(fs);
+            return;
+        }
+        this.gl.useProgram(this.program);
+    }
+
+    private init_web_gl(): void {
+        if (!this.gl) return;
+        this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        this.gl.enable(this.gl.DEPTH_TEST);
+    }
+
+    private reshape(): void {
+        if (!this.gl) {
+            console.error("WebGL context not available for reshape.");
+            return;
+        }
+        const container = document.getElementById("canvas-container");
+        if (!container) {
+            console.error("Could not find canvas-container element.");
+            return;
+        }
+        const containerRect = container.getBoundingClientRect();
+        const newWidth = containerRect.width;
+        const newHeight = containerRect.height;
+
+        console.log("Reshaping, width = " + newWidth + ", height = " + newHeight + ".");
+
+        const aspectRatio = newWidth / newHeight;
+        console.log("Aspect ratio is " + aspectRatio + ".");
+
+        const canvas = document.querySelector("canvas");
+        if (!canvas) {
+            console.error("Could not find canvas element.");
+            return;
+        }
+        canvas.setAttribute("width", newWidth.toString());
+        canvas.setAttribute("height", newHeight.toString());
+        this.gl.viewport(0, 0, newWidth, newHeight);
+
+        const projectionMatrix = mat4.create();
+        mat4.perspective(projectionMatrix, 45 * Math.PI / 180, aspectRatio, 0.1, 100.0);
+
+        const loc = this.findUniform("projection");
+        if (loc) this.gl.uniformMatrix4fv(loc, false, projectionMatrix);
+
+        this.display();
+    }
+
+    private init_lsystem(): void {
+        this.lsystem = new LSystem();
+        this.lsystem.setAxiom("F");
+
+        const rule = new Rule("F", "F[+F]F[-F]F[/F]F[*F]");
+        this.lsystem.addRule(rule);
+
+        console.log("Starting L-system construction...");
+        this.lsystem.step();
+        this.lsystem.step();
+        this.lsystem.step();
+        console.log("Done.");
+    }
 }
 
-const init_shader_program = (): void => {
-    if (!gl) {
-        console.error("WebGL context not available for shader program initialization.");
-        return;
-    }
-    if (typeof vertexShaderSource !== 'string' || vertexShaderSource.trim() === "") {
-        console.error("Vertex shader source is not a valid string or is empty.");
-        return;
-    }
-    const vs = init_shader(vertexShaderSource, gl.VERTEX_SHADER);
-
-    if (typeof fragmentShaderSource !== 'string' || fragmentShaderSource.trim() === "") {
-        console.error("Fragment shader source is not a valid string or is empty.");
-        return;
-    }
-    const fs = init_shader(fragmentShaderSource, gl.FRAGMENT_SHADER);
-
-    if (!vs || !fs) {
-        console.error("Shader compilation failed. Cannot link program.");
-        if (vs) gl.deleteShader(vs);
-        if (fs) gl.deleteShader(fs);
-        return;
-    }
-
-    program = gl.createProgram();
-    if (!program) {
-        console.error("Failed to create WebGL program.");
-        gl.deleteShader(vs);
-        gl.deleteShader(fs);
-        return;
-    }
-    gl.attachShader(program, vs);
-    gl.attachShader(program, fs);
-    gl.linkProgram(program);
-
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        console.error("Unable to initialize the shader program: " + gl.getProgramInfoLog(program));
-        gl.deleteProgram(program);
-        program = null;
-        gl.deleteShader(vs);
-        gl.deleteShader(fs);
-        return;
-    }
-    gl.useProgram(program);
-};
-
-function init_web_gl(): void {
-    if (!gl) return;
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(gl.DEPTH_TEST);
-}
-
-function reshape(): void {
-    if (!gl) {
-        console.error("WebGL context not available for reshape.");
-        return;
-    }
-    const container = document.getElementById("canvas-container");
-    if (!container) {
-        console.error("Could not find canvas-container element.");
-        return;
-    }
-    const containerRect = container.getBoundingClientRect();
-    const newWidth = containerRect.width;
-    const newHeight = containerRect.height;
-
-    console.log("Reshaping, width = " + newWidth + ", height = " + newHeight + ".");
-
-    const aspectRatio = newWidth / newHeight;
-    console.log("Aspect ratio is " + aspectRatio + ".");
-    // const worldHeight = maxY;
-    // const worldWidth = worldHeight * aspectRatio;
-    // const minX = -worldWidth / 2.0; // Unused
-    // const maxX = +worldWidth / 2.0; // Unused
-    // console.log("minX = " + minX + ", maxX = " + maxX);
-
-    const canvas = document.querySelector("canvas");
-    if (!canvas) {
-        console.error("Could not find canvas element.");
-        return;
-    }
-    canvas.setAttribute("width", newWidth.toString());
-    canvas.setAttribute("height", newHeight.toString());
-    gl.viewport(0, 0, newWidth, newHeight);
-
-    const projectionMatrix = mat4.create();
-    mat4.perspective(projectionMatrix, 45 * Math.PI / 180, aspectRatio, 0.1, 100.0);
-
-    const loc = findUniform("projection");
-    if (loc) gl.uniformMatrix4fv(loc, false, projectionMatrix);
-
-    display();
-}
-
-function init_lsystem(): void {
-    lsystem = new LSystem();
-    lsystem.setAxiom("F");
-
-    const rule = new Rule("F", "F[+F]F[-F]F[/F]F[*F]");
-    lsystem.addRule(rule);
-
-    console.log("Starting L-system construction...");
-    lsystem.step();
-    lsystem.step();
-    lsystem.step();
-    console.log("Done.");
-}
-
-const main = function main(): void {
-    gl = get_web_gl_context();
-    if (!gl) {
-        console.error("Failed to initialize WebGL. Application cannot start.");
-        return;
-    }
-
-    init();
-    init_web_gl();
-    init_shader_program();
-    if (!program) { 
-         console.error("Shader program failed to initialize. Application cannot start.");
-         return;
-    }
-    init_lsystem();
-    init_geometry();
-};
-
-main();
+// Start the application
+new LSystemDemo();
