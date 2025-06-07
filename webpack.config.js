@@ -11,7 +11,7 @@ module.exports = [
     module: {
       rules: [
         {
-          test: /src[\/\\].*\.ts/,
+          test: /src[\/\\].*\.(ts|tsx)$/,
           use: 'ts-loader'
         },
         {
@@ -24,22 +24,26 @@ module.exports = [
       ],
     },
     resolve: {
-      extensions: [".js", ".ts"],
+      extensions: [".js", ".ts", ".tsx"],
     },
     watchOptions: {
       poll: 50,
       ignored: /node_modules/,
     },
     entry: {
-      "main": __dirname + "/src/" + "main.ts",
+      "main": __dirname + "/src/" + "main.tsx",
     },
     plugins: [
-      new BrowserSyncPlugin({
-        host: 'localhost',
-        port: 3000,
-        server: { baseDir: ['dist'] },
-        open: false
-      })
+      new BrowserSyncPlugin(
+        {
+          host: 'localhost',
+          port: 3000,
+          server: { baseDir: ['dist'] },
+          files: ["dist/*.js", "dist/*.css", "dist/*.html"],
+          open: false,
+          injectChanges: true,
+        },
+      )
     ]
   },
 ]

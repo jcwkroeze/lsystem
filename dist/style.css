@@ -1,21 +1,68 @@
-* {
-    all: unset;
+@import url('https://fonts.googleapis.com/css2?family=Fira+Mono&family=Josefin+Sans&display=swap');
+
+:root {
+    /* Solarized Dark full palette */
+    --base03: #002b36;
+    --base02: #073642;
+    --base01: #586e75;
+    --base00: #657b83;
+    --base0:  #839496;
+    --base1:  #93a1a1;
+    --base2:  #eee8d5;
+    --base3:  #fdf6e3;
+        
+    /* Accent colours */
+    --accent-blue: #268bd2;
+    --accent-cyan: #2aa198;
+    --accent-green: #859900;
+    --accent-magenta: #d33682;
+    --accent-yellow: #b58900;
+    
+    /* Custom assignments */
+    --bg-color: var(--base03);
+    --fg-color: var(--base0);
+    --heading-color: var(--base2);
+    --label-color: var(--base1);
+    --input-bg-color: var(--base01);
+    --input-color: var(--base3);
+    --selected-color: var(--accent-cyan);
 }
 
-style, script {
-    display: none;
-}
-
-html, body {
+html, body, #app-root {
     width: 100vw;
     height: 100vh;
 
     display: flex;
     flex-direction: row;
+    margin: 0;
+
+    background-color: var(--bg-color);
+    color: var(--fg-color);
+    font-family: 'Fira Mono', monospace;
 }
 
-html > head > title {
-    display: none;
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Josefin Sans', sans-serif;
+    color: var(--heading-color);
+}
+
+label {
+    font-family: 'Josefin Sans', sans-serif;
+    color: var(--label-color);
+}
+
+input, select, textarea {
+    background-color: var(--input-bg-color);
+    color: var(--input-color);
+    border: 1px solid var(--base01);
+    border-radius: 4px;
+    padding: 0.5em;
+    font-family: 'Fira Mono', monospace;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--selected-color);
 }
 
 #canvas-container {
@@ -32,4 +79,8 @@ html > head > title {
 #controls {
     display: flex;
     flex-direction: column;
+}
+
+#controls > div {
+    margin: 0.5em 0;
 }

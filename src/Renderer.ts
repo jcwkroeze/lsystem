@@ -1,39 +1,72 @@
-import { LSystem, Rule } from './lsystem';
+import { LSystem } from './LSystem';
 import { vec3, vec4, mat4 } from 'gl-matrix';
+
 import vertexShaderSource from './shaders/vertex.glsl';
 import fragmentShaderSource from './shaders/fragment.glsl';
 
-class LSystemDemo {
+function hexToRgbNormalized(hex: string): [number, number, number] | null {
+    hex = hex.startsWith('#') ? hex.slice(1) : hex;
+    if (hex.length === 3) {
+        hex = hex.split('').map(c => c + c).join('');
+    }
+    if (hex.length !== 6) return null;
+    const intVal = parseInt(hex, 16);
+    const r = ((intVal >> 16) & 255) / 255;
+    const g = ((intVal >> 8) & 255) / 255;
+    const b = (intVal & 255) / 255;
+    return [r, g, b];
+}
+
+function getWebGLColors(): { bgColor: [number, number, number] | null; textColor: [number, number, number] | null } {
+    const styles = getComputedStyle(document.documentElement);
+    const bgColorHex = styles.getPropertyValue('--bg-color').trim();
+    const textColorHex = styles.getPropertyValue('--fg-color').trim();
+    const bgColor = hexToRgbNormalized(bgColorHex);
+    const textColor = hexToRgbNormalized(textColorHex);
+    return { bgColor, textColor };
+}
+
+export class Renderer {
     private gl: WebGLRenderingContext | null = null;
     private buffer: WebGLBuffer | null = null;
     private program: WebGLProgram | null = null;
     private vertexCount: number = 0;
-    private lsystem: LSystem | null = null;
     private readonly angle: number = 45 * (Math.PI / 180);
     private readonly distance: number = 0.05;
     private maxY: number = 0.01;
     private readonly rotationDelta: number = 1 * (Math.PI / 180);
     private rotation: number = 0;
 
-    private stepCount = 1;
-
-    constructor() {
+    constructor(
+        private lSystem: LSystem
+    ) {
         this.gl = this.get_web_gl_context();
         if (!this.gl) {
             console.error("Failed to initialize WebGL. Application cannot start.");
             return;
         }
 
-        this.init(); // Sets up event listeners and interval
+        const { bgColor } = getWebGLColors();
+        if (bgColor) {
+            this.gl.clearColor(bgColor[0], bgColor[1], bgColor[2], 1.0);
+        } else {
+            this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        }
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
+        this.init();
         this.init_web_gl();
         this.init_shader_program();
         if (!this.program) {
             console.error("Shader program failed to initialize. Application cannot start.");
             return;
         }
-        this.init_lsystem();
         this.init_geometry();
-        this.reshape(); // Call reshape once to set initial projection and display
+        this.reshape();
+    }
+
+    public updateGeometry() {
+        this.init_geometry();
     }
 
     private display(): void {
@@ -111,27 +144,11 @@ class LSystemDemo {
 
     private init(): void {
         window.onresize = this.reshape.bind(this);
-        window.onkeyup = this.keyboard.bind(this);
         window.setInterval(this.update.bind(this), 16);
     }
 
-    private keyboard(ev: KeyboardEvent): void {
-        if (ev.key === '+') {
-            this.stepCount++;
-            console.log("Increasing step count to " + this.stepCount);
-            this.init_lsystem();
-            this.init_geometry();
-        } else if (ev.key === '-') {
-            this.stepCount--,
-            console.log("Decreasing step count to " + this.stepCount);
-            this.init_lsystem();
-            this.init_geometry();
-        }
-        this.update();
-    }
-
     private init_geometry(): void {
-        if (!this.gl || !this.program || !this.lsystem) {
+        if (!this.gl || !this.program || !this.lSystem) {
             console.error("WebGL context, program, or L-System not initialized for geometry generation.");
             return;
         }
@@ -157,7 +174,7 @@ class LSystemDemo {
         mat4.rotateX(negativeXRotation, negativeXRotation, -this.angle);
 
         console.log("Starting geometry generation...");
-        const lsystemString = this.lsystem.string;
+        const lsystemString = this.lSystem.result;
         for (let i = 0; i < lsystemString.length; i++) {
             const char = lsystemString.charAt(i);
             switch (char) {
@@ -168,6 +185,8 @@ class LSystemDemo {
                     vertices.push(position[0]);
                     vertices.push(position[1]);
                     vertices.push(position[2]);
+
+                    // TODO(jan): Push colours.
 
                     vertices.push(nextPosition[0]);
                     vertices.push(nextPosition[1]);
@@ -304,7 +323,6 @@ class LSystemDemo {
 
     private init_web_gl(): void {
         if (!this.gl) return;
-        this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
         this.gl.enable(this.gl.DEPTH_TEST);
     }
 
@@ -344,21 +362,4 @@ class LSystemDemo {
 
         this.display();
     }
-
-    private init_lsystem(): void {
-        this.lsystem = new LSystem();
-        this.lsystem.setAxiom("F");
-
-        const rule = new Rule("F", "F[+F]F[-F]F[/F]F[*F]");
-        this.lsystem.addRule(rule);
-
-        console.log("Starting L-system construction...");
-        for (let i = 0; i < this.stepCount; i++) {
-            this.lsystem.step();
-        }
-        console.log("Done.");
-    }
 }
-
-// Start the application
-new LSystemDemo();
