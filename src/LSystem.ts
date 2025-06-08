@@ -104,7 +104,7 @@ export class LSystem {
 
             this.results.length = newState.stepCount + 1;
         }
-        
+
         if (recomputeNeeded) {
             this.results.length = 0;
 
@@ -116,85 +116,67 @@ export class LSystem {
         }
     }
 
-    private step(): void {
-        let currentString = this.result;
-        let newString = this.result;
+    step(): void {
+        var string = this.result;
+        var newString = this.result;
 
-        this.rules.forEach((rule) => {
-            let last_pos = 0;
-            let searchString = currentString; // Use a mutable copy for search modifications
-            let tempNewString = newString; // Use a temporary string for building the new state within a rule's iteration
+        for (const rule of this.rules) {
+            var last_pos = 0;
+            var pos = string.slice(last_pos).search(rule.predecessor);
 
-            while (last_pos < searchString.length) {
-                let pos_relative = searchString.substring(last_pos).search(rule.predecessor);
-                if (pos_relative === -1) break; // No more matches for this rule in the rest of the string
+            while (pos !== -1) {
+                var match_length = rule.predecessor.length;
+                var match = rule.predecessor;
+                var matched = true;
+                var attribute = "";
+                var successor = rule.successor;
+                if (string.charAt(pos + match_length) == "(") {
+                    var rbracket = string.slice(pos).search(/\)/);
+                    var token = string.substr(pos, rbracket + 1);
 
-                let pos_absolute_in_search = last_pos + pos_relative;
+                    var parts = extractBrackets(token);
+                    match = parts.processedString;
+                    attribute = parts.contents;
+                    match_length = rbracket - pos + 1;
 
-                let match_length_in_search = rule.predecessor.length;
-                let matched = true;
-                let attribute = "";
-                let currentRuleSuccessor = rule.successor;
-
-                // Check for attribute parameters like F(x) in the searchString
-                if (searchString.charAt(pos_absolute_in_search + rule.predecessor.length) === "(") {
-                    const rbracket = searchString.substring(pos_absolute_in_search).search(/\)/);
-                    if (rbracket !== -1) {
-                        const token = searchString.substring(pos_absolute_in_search, pos_absolute_in_search + rbracket + 1);
-                        const parts = extractBrackets(token);
-                        attribute = parts.contents;
-                        match_length_in_search = token.length; // The actual length of the matched token in searchString
-
-                        matched = matchAttributeConditional(attribute, rule.conditional);
-                        if (matched && rule.attributeArithmetic) {
-                            currentRuleSuccessor = rule.successor + "(" + applyAttributeArithmetic(attribute, rule) + ")";
-                        }
-                    } else {
-                        matched = false; // Invalid format, no closing bracket
-                    }
+                    matched = matchAttributeConditional(attribute, rule.conditional);
+                    successor = rule.successor + "(" + applyAttributeArithmetic(attribute, rule) + ")";
                 }
 
-                // Calculate the corresponding position in tempNewString for replacement
-                // This needs to be accurate if previous replacements changed lengths
-                // For simplicity, we assume replacements happen on a version of the string that reflects previous replacements by *this rule*.
-                // A more robust way might involve rebuilding newString from segments.
+                if (matched === true) {
+                    var place_holder;
+                    if (rule.predecessor.length > successor.length) {
+                        place_holder = spaces(rule.predecessor.length);
+                    }
+                    else {
+                        place_holder = spaces(successor.length);
+                    }
 
-                if (matched) {
-                    const placeholder = spaces(match_length_in_search);
+                    if (rule.predecessor.length > successor.length) {
+                        successor = pad(successor, rule.predecessor.length);
+                    }
 
-                    // Apply replacement to tempNewString
-                    // The `currentMatchPos` needs to correctly map `pos_absolute_in_search` to `tempNewString`
-                    // This is tricky if lengths change. A simpler model is to build a new string from parts.
+                    string = string.slice(0, pos) +
+                        place_holder +
+                        string.slice(pos + match_length, string.length);
 
-                    // Simplified: For this pass of the rule, we are modifying based on initial `newString` (or `currentString`)
-                    // This part of the logic is complex and prone to off-by-one or cascading errors if not handled carefully.
-                    // The original code modified `newString` and `string` (for search) in ways that could interact complexly.
-                    // Let's try to make it clearer: `searchString` is for finding matches, `newString` is the output being built.
+                    newString = newString.slice(0, pos) +
+                        successor +
+                        newString.slice(pos + match_length, string.length);
 
-                    // The position for replacement in `newString` should correspond to `pos_absolute_in_search` in `currentString`
-                    // if we consider `newString` to be a direct copy that gets modified.
+                    newString = newString.trim().replace(" ", "");
+                }
 
-                    // To avoid issues with shifting indices, we build a completely new string in each step of the outer loop (this.rules.forEach)
-                    // For now, sticking closer to original logic but with care:
-                    tempNewString = tempNewString.substring(0, pos_absolute_in_search + (tempNewString.length - currentString.length)) +
-                        currentRuleSuccessor +
-                        tempNewString.substring(pos_absolute_in_search + (tempNewString.length - currentString.length) + match_length_in_search);
+                last_pos = pos + match_length;
+                pos = string.slice(last_pos).search(rule.predecessor);
 
-                    // Update searchString by putting placeholders to prevent re-matching the same spot with the same rule part
-                    searchString = searchString.substring(0, pos_absolute_in_search) +
-                        placeholder +
-                        searchString.substring(pos_absolute_in_search + match_length_in_search);
-
-                    last_pos = pos_absolute_in_search + placeholder.length;
-                } else {
-                    last_pos = pos_absolute_in_search + match_length_in_search; // Skip this match and continue search
+                if (pos != -1) {
+                    pos += last_pos;
                 }
             }
-            newString = tempNewString; // Update newString with changes from this rule
-            currentString = newString; // For the next rule, search in the result of the previous rule
-        });
+        };
 
-        this.results.push(newString.replace(/\s+/g, '')); // Replace all whitespace sequences with nothing
+        this.results.push(newString.trim().replace(" ", ""));
     }
 }
 
