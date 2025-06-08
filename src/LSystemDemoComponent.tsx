@@ -119,11 +119,12 @@ extends React.Component<
 
     exampleAlgea() {
         this.setState({
-            axiom: "F",
-            angle: 22.5,
+            axiom: "FA",
+            angle: 30,
             stepCount: 4,
             rules: this.rulesToString([
-                new Rule("F", "F[+F]F[-F][F]")
+                new Rule("A", "F[+A]F[-B]"),
+                new Rule("B", "FA")
             ])
         }, () => {
             this.updateLSystem();
