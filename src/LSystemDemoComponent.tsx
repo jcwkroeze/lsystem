@@ -44,6 +44,7 @@ extends React.Component<
             stepCount: this.state.stepCount,
             rules: this.stringToRules(this.state.rules),
         });
+        // TODO(jan): Move to thread.
         this.setState({result: this.lSystem.result});
 
         if (this.renderer)
@@ -125,6 +126,20 @@ extends React.Component<
             rules: this.rulesToString([
                 new Rule("A", "F[+A]F[-B]"),
                 new Rule("B", "FA")
+            ])
+        }, () => {
+            this.updateLSystem();
+        });
+    }
+
+    exampleFractalBinary() {
+        this.setState({
+            axiom: "A",
+            angle: 45,
+            stepCount: 7,
+            rules: this.rulesToString([
+                new Rule("B", "BB"),
+                new Rule("A", "B[+A][-A]")
             ])
         }, () => {
             this.updateLSystem();
@@ -217,6 +232,7 @@ extends React.Component<
                         <h1>Examples</h1>
                         <ul>
                             <li onClick={() => this.exampleAlgea()}>Lindenmayer's original algea example.</li>
+                            <li onClick={() => this.exampleFractalBinary()}>Fractal binary tree.</li>
                         </ul>
                     </div>
                 </div>
