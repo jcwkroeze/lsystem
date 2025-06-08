@@ -189,6 +189,20 @@ extends React.Component<
         });
     }
 
+    exampleArrowheadSierpinskiTriangle() {
+        this.setState({
+            axiom: "A",
+            angle: 60,
+            stepCount: 5,
+            rules: this.rulesToString([
+                new Rule("A", "B-A-B"),
+                new Rule("B", "A+B+A")
+            ])
+        }, () => {
+            this.updateLSystem();
+        });
+    }
+
     render() {
         return <>
             <div id="left-panel">
@@ -279,6 +293,7 @@ extends React.Component<
                             <li onClick={() => this.exampleKochCurve()}>Koch curve.</li>
                             <li onClick={() => this.example3DKochCurve()}>"3D" Koch curve.</li>
                             <li onClick={() => this.exampleSierpinskiTriangle()}>Sierpinski triangle.</li>
+                            <li onClick={() => this.exampleArrowheadSierpinskiTriangle()}>Arrowhead Sierpinski triangle.</li>
                         </ul>
                     </div>
                 </div>
