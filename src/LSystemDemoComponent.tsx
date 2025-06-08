@@ -146,6 +146,19 @@ extends React.Component<
         });
     }
 
+    exampleKochCurve() {
+        this.setState({
+            axiom: "F",
+            angle: 90,
+            stepCount: 3,
+            rules: this.rulesToString([
+                new Rule("F", "F+F-F-F+F")
+            ])
+        }, () => {
+            this.updateLSystem();
+        });
+    }
+
     render() {
         return <>
             <div id="left-panel">
@@ -233,6 +246,7 @@ extends React.Component<
                         <ul>
                             <li onClick={() => this.exampleAlgea()}>Lindenmayer's original algea example.</li>
                             <li onClick={() => this.exampleFractalBinary()}>Fractal binary tree.</li>
+                            <li onClick={() => this.exampleKochCurve()}>Koch curve.</li>
                         </ul>
                     </div>
                 </div>
