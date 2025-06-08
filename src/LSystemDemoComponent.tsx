@@ -118,7 +118,7 @@ extends React.Component<
         });
     }
 
-    exampleAlgea() {
+    exampleAlgae() {
         this.setState({
             axiom: "FA",
             angle: 30,
@@ -288,7 +288,7 @@ extends React.Component<
                     <div id="examples">
                         <h1>Examples</h1>
                         <ul>
-                            <li onClick={() => this.exampleAlgea()}>Lindenmayer's original algea example.</li>
+                            <li onClick={() => this.exampleAlgae()}>Lindenmayer's original algae example.</li>
                             <li onClick={() => this.exampleFractalBinary()}>Fractal binary tree.</li>
                             <li onClick={() => this.exampleKochCurve()}>Koch curve.</li>
                             <li onClick={() => this.example3DKochCurve()}>"3D" Koch curve.</li>
