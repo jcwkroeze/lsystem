@@ -1,14 +1,12 @@
 import React from 'react';
 
-import { Rule } from './LSystem';
-
 export interface LSystemControlsProps {
     axiom: string;
-    rules: Rule[];
+    rules: string;
     angle: number;
     stepCount: number;
     onAxiomChange: (axiom: string) => void;
-    onRulesChange: (rules: Rule[]) => void;
+    onRulesChange: (rules: string) => void;
     onAngleChange: (angle: number) => void;
     onStepCountChange: (stepCount: number) => void;
     onSubmit: () => void;
@@ -43,11 +41,9 @@ export class LSystemControlComponent extends React.Component<LSystemControlsProp
                     <label htmlFor="rules">Rules</label>
                     <textarea
                         id="rules"
-                        value={this.rulesToString(rules)}
+                        value={rules}
                         placeholder="Enter rules in the format: predecessor => successor, one per line"
-                        onChange={(e) => onRulesChange(
-                            this.stringToRules(e.target.value)
-                        )}
+                        onChange={(e) => onRulesChange(e.target.value)}
                         rows={3}
                     />
 
@@ -72,16 +68,5 @@ export class LSystemControlComponent extends React.Component<LSystemControlsProp
                 <button onClick={onSubmit}>Apply Configuration</button>
             </div>
         );
-    }
-
-    private rulesToString(rules: Rule[]): string {
-        return rules.map(rule => `${rule.predecessor} => ${rule.successor}`).join("\n");
-    }
-
-    private stringToRules(rulesString: string): Rule[] {
-        return rulesString.split("\n").map(r => {
-            const components = r.split("=>");
-            return new Rule(components[0].trim(), components[1].trim());
-        });
     }
 }

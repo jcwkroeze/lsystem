@@ -102,6 +102,10 @@ input, select, textarea {
     font-family: 'Fira Mono', monospace;
 }
 
+pre {
+    font-family: 'Fira Mono', monospace;
+}
+
 input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--selected-color);
@@ -155,6 +159,15 @@ button {
 
 #right-panel #controls textarea {
     height: 200px;
+}
+
+#right-panel #result pre {
+    font-size: 60%;
+    max-height: 10em;
+    word-break: break-all;
+    white-space: pre-wrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 #legend {

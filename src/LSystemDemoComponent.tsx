@@ -8,8 +8,9 @@ import { LSystemControlComponent } from './LSystemControlComponent';
 export interface LSystemDemoState {
     angle: number;
     axiom: string;
-    rules: Rule[];
+    rules: string;
     stepCount: number;
+    result: string;
 }
 
 export class LSystemDemoComponent
@@ -26,8 +27,9 @@ extends React.Component<
         this.state = {
             angle: this.lSystem.angle,
             axiom: this.lSystem.axiom,
-            rules: this.lSystem.rules,
+            rules: this.rulesToString(this.lSystem.rules),
             stepCount: this.lSystem.stepCount,
+            result: this.lSystem.result,
         }
     }
 
@@ -40,8 +42,9 @@ extends React.Component<
             axiom: this.state.axiom,
             angle: this.state.angle,
             stepCount: this.state.stepCount,
-            rules: this.state.rules,
+            rules: this.stringToRules(this.state.rules),
         });
+        this.setState({result: this.lSystem.result});
 
         if (this.renderer)
             this.renderer.updateGeometry();
@@ -54,9 +57,9 @@ extends React.Component<
             axiom: "F",
             angle: 30,
             stepCount: 3,
-            rules: [
+            rules: this.rulesToString([
                 new Rule("F", "F[+F]F")
-            ]
+            ])
         }, () => {
             this.updateLSystem();
         });
@@ -67,9 +70,9 @@ extends React.Component<
             axiom: "F",
             angle: 30,
             stepCount: 3,
-            rules: [
+            rules: this.rulesToString([
                 new Rule("F", "F[-F]F")
-            ]
+            ])
         }, () => {
             this.updateLSystem();
         });
@@ -80,9 +83,9 @@ extends React.Component<
             axiom: "F",
             angle: 30,
             stepCount: 3,
-            rules: [
+            rules: this.rulesToString([
                 new Rule("F", "F[*F]F")
-            ]
+            ])
         }, () => {
             this.updateLSystem();
         });
@@ -93,9 +96,9 @@ extends React.Component<
             axiom: "F",
             angle: 30,
             stepCount: 3,
-            rules: [
+            rules: this.rulesToString([
                 new Rule("F", "F[/F]F")
-            ]
+            ])
         }, () => {
             this.updateLSystem();
         });
@@ -106,9 +109,9 @@ extends React.Component<
             axiom: "F",
             angle: 30,
             stepCount: 3,
-            rules: [
+            rules: this.rulesToString([
                 new Rule("F", "F[+fF][-fF]F")
-            ]
+            ])
         }, () => {
             this.updateLSystem();
         });
@@ -119,9 +122,9 @@ extends React.Component<
             axiom: "F",
             angle: 22.5,
             stepCount: 4,
-            rules: [
+            rules: this.rulesToString([
                 new Rule("F", "F[+F]F[-F][F]")
-            ]
+            ])
         }, () => {
             this.updateLSystem();
         });
@@ -159,6 +162,11 @@ extends React.Component<
                     onStepCountChange={(stepCount) => this.setState({ stepCount })}
                     onSubmit={() => this.updateLSystem()}
                 />
+
+                <div id="result">
+                    <h1>Result</h1>
+                    <pre title={this.state.result}>{this.state.result}</pre>
+                </div>
                 
                 <div id="legend">
                     <h1>Legend</h1>
@@ -213,5 +221,18 @@ extends React.Component<
                 </div>
             </div>
         </>
+    }
+
+    private stringToRules(rules: string): Rule[] {
+        return rules.split("\n")
+            .filter(line => line.trim() !== "")
+            .map(line => {
+                const [predecessor, successor] = line.split("=>").map(part => part.trim());
+                return new Rule(predecessor, successor);
+            });
+    }
+
+    private rulesToString(rules: Rule[]): string {
+        return rules.map(rule => `${rule.predecessor} => ${rule.successor}`).join("\n");
     }
 }
