@@ -175,6 +175,20 @@ extends React.Component<
         });
     }
 
+    exampleSierpinskiTriangle() {
+        this.setState({
+            axiom: "A-B-B",
+            angle: 120,
+            stepCount: 5,
+            rules: this.rulesToString([
+                new Rule("A", "A-B+A+B-A"),
+                new Rule("B", "BB")
+            ])
+        }, () => {
+            this.updateLSystem();
+        });
+    }
+
     render() {
         return <>
             <div id="left-panel">
@@ -264,6 +278,7 @@ extends React.Component<
                             <li onClick={() => this.exampleFractalBinary()}>Fractal binary tree.</li>
                             <li onClick={() => this.exampleKochCurve()}>Koch curve.</li>
                             <li onClick={() => this.example3DKochCurve()}>"3D" Koch curve.</li>
+                            <li onClick={() => this.exampleSierpinskiTriangle()}>Sierpinski triangle.</li>
                         </ul>
                     </div>
                 </div>
